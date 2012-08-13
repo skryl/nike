@@ -77,7 +77,7 @@ private
   end
 
   def fetch_user_data(opts)
-    type = opts[:type].to_sym || :run
+    type = (opts[:type] || :run).to_sym
     cache(type) do
       wrap get_authorized(ACTIVITIES_URLS[type], query: { indexStart: 0, indexEnd: 999999})
     end
