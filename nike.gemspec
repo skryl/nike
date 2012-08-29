@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["rut216@gmail.com"]
   gem.summary       = %q{A Ruby client for the Nike+ API}
   gem.description   = %q{A Ruby client for the Nike+ API with support for Run/GPS/HR Data}
+  gem.homepage      = "https://github.com/skryl/nike"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

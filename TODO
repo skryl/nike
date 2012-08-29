@@ -1,0 +1,2 @@
+- change inspect to not show cache
+- fix .values calls to show values key instead of values method for hash
