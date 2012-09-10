@@ -27,6 +27,7 @@ class Nike::Client
   format FORMAT
   base_uri BASE_URL
   default_params format: FORMAT, app: APP_KEY
+  headers 'User-Agent' => 'Mozilla/5.0'
 
   attr_accessor :caching
 
