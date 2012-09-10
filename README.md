@@ -113,18 +113,22 @@ All time fields are automatically converted to Ruby Time objects
 
 ## Caching
 
+Caching is enabled by default due to the slowness of the API and the large data set sizes.
+
 Toggle caching during client initialization
 
-    $ c = Nike::Client.new('your_email', 'your_password', caching: true)
+    $ c = Nike::Client.new('your_email', 'your_password', caching: false)
 
 Toggle caching after client initialization
 
     $ c.caching = false
 
-Perform the HTTP request for a particular call even if caching is enabled. This
+Force the request for a particular data set even if caching is enabled. This
 will have the side-effect of refreshing the cache.
 
     $ c.activities!
+
+    $ c.activity!(12345)
     
 
 ## Contributing
