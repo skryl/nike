@@ -56,7 +56,7 @@ More metrics
 
     $ c.time_span_metrics               # run metrics
 
-    $ c.time_span_metrics               # hr metrics
+    $ c.time_span_metrics(type: :hr)    # hr metrics
 
 Distance by time of day
 
