@@ -87,12 +87,12 @@ private
 # speed
 
   def pace_to_mpk
-    distnace_in_kilometers && duration_in_minutes &&
+    distance_in_kilometers && duration_in_minutes &&
     duration_in_minutes / distance_in_kilometers
   end
 
   def pace_to_mpm
-    distnace_in_miles && duration_in_minutes &&
+    distance_in_miles && duration_in_minutes &&
     duration_in_minutes / distance_in_miles
   end
 
