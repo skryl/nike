@@ -1,6 +1,6 @@
 # Nike
 
-A Ruby client for the Nike+ API
+A Ruby client for the Nike+ API. [Here](http://skryl.org/exercise) is how I use it.
 
 ## Features
 
