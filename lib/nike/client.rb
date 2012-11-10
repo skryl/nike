@@ -105,7 +105,7 @@ private
   end
 
   def logged_in?
-    !@user_id.nil? && !self.class.cookies[:slCheck].nil?
+    !@user_id.nil?
   end
 
 # caching
