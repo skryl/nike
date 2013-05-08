@@ -8,53 +8,46 @@ class Nike::Client
   include HTTParty
   # debug_output $stdout
 
-  LOGIN_URL     = 'https://secure-nikeplus.nike.com/nsl/services/user/login'
-  BASE_URL      = 'http://nikeplus.nike.com/plus'
+  BASE_URL      = 'https://api.nike.com/me/sport'
   APP_KEY       = 'b31990e7-8583-4251-808f-9dc67b40f5d2' 
   FORMAT        = :json
 
   # service urls
   #
-  RUN_ACTIVITIES_URL = '/activity/running/[user_id]/lifetime/activities'
-  HR_ACTIVITIES_URL  = '/activity/running/[user_id]/heartrate/lifetime/activities'
-  ACTIVITY_URL       = '/running/ajax'
-
-  ACTIVITIES_URLS        = {
-    run:   RUN_ACTIVITIES_URL,
-    hr:    HR_ACTIVITIES_URL
-  }
+  ACTIVITY_URL = '/activities' 
+  NUM_ACTIVITIES = 10
 
   format FORMAT
   base_uri BASE_URL
-  default_params format: FORMAT, app: APP_KEY
-  headers 'User-Agent' => 'Mozilla/5.0'
+  headers 'Accept' => 'application/json', 
+          'appid'  => APP_KEY
 
   attr_accessor :caching
 
-  def initialize(email, password, opts = {})
-    @email, @password, @user_id = email, password, nil
+  def initialize(token, opts = {})
+    @token = token
     @caching, @cache = opts[:caching] || true, {}
   end
 
   def activity(id)
-    fetch_activity_data(id.to_s).activity
+    fetch_activity(id.to_s)
   end
 
   def activities(opts = {})
-    fetch_user_data(opts).activities.map { |a| a.activity }
+    fetch_activities(opts)['data']
   end
 
   def detailed_activities(opts = {})
     activities(opts).map { |a| activity(a.activity_id) }
   end
 
-  [:lifetime_totals, :time_span_metrics, :time_of_day_metrics, :terrains, :paces, :homepage_stats].each do |m|
-    eval %(
-      def #{m}(opts = {})
-        fetch_user_data(opts).send(:#{m})
-      end
-    )
-  end
+  # [:lifetime_totals, :time_span_metrics, :time_of_day_metrics, :terrains, :paces, :homepage_stats].each do |m|
+  #   eval %(
+  #     def #{m}(opts = {})
+  #       fetch_activities(opts).send(:#{m})
+  #     end
+  #   )
+  # end
 
   def method_missing(method_name, *args, &block)
     if /(.*)!$/ === method_name && self.respond_to?(method_name.to_s.chop)
@@ -67,45 +60,26 @@ class Nike::Client
     method_name.to_s.end_with?('!') && self.respond_to?(method_name.to_s.chop)
   end  
 
-private
+# private
 
 # data
 
-  def fetch_activity_data(id)
+  def fetch_activity(id)
     cache(id) do 
       wrap get_authorized(ACTIVITY_URL + "/#{id}")
     end
   end
 
-  def fetch_user_data(opts)
-    type = (opts[:type] || :run).to_sym
-    cache(type) do
-      wrap get_authorized(ACTIVITIES_URLS[type], query: { indexStart: 0, indexEnd: 999999})
+  def fetch_activities(opts)
+    cache(:all) do
+      wrap get_authorized(ACTIVITY_URL, query: { count: NUM_ACTIVITIES })
     end
   end
 
 # auth
 
-  def get_authorized(url, opts = {})
-    login_if_unauthenticated
-    raise "Authentication failed!" unless logged_in?
-    self.class.get(personify_url(url), opts).to_hash
-  end
-
-  def login_if_unauthenticated
-    return if logged_in?
-    response = self.class.login(@email, @password) 
-    @user_id = response['serviceResponse']['body']['User']['screenName']
-  end
-
-  def self.login(email, password)
-    response = post(LOGIN_URL, query: { email: email, password: password }) 
-    self.default_cookies.add_cookies(response.headers['set-cookie'])
-    response
-  end
-
-  def logged_in?
-    !@user_id.nil?
+  def get_authorized(url, params = {})
+    self.class.get(url, params.merge( query: {access_token: @token} ))
   end
 
 # caching
@@ -123,11 +97,6 @@ private
   end
 
 # helpers
-
-  def personify_url(url)
-    vars = url.scan(/\[[^\]]*\]/)
-    vars.inject(url){ |u, v| u.gsub(v, self.instance_variable_get("@#{v[1..-2]}").to_s) }
-  end
 
   def wrap(response)
     Nike::Mash.new(response.underscore_keys)
