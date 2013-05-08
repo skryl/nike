@@ -22,6 +22,9 @@ class Nike::Client
   headers 'Accept' => 'application/json', 
           'appid'  => APP_KEY
 
+  DATE_RXP = /\d{4}-\d{2}-\d{2}/
+  NUM_RXP  = /\d+/
+
   attr_accessor :caching
 
   def initialize(token, opts = {})
@@ -34,20 +37,21 @@ class Nike::Client
   end
 
   def activities(opts = {})
-    fetch_activities(opts)['data']
+    params = {}
+    start_date, end_date, count, page  = 
+      opts[:start_date], opts[:end_date], opts[:count], opts[:page]
+
+    params.merge(startDate: start_date) if start_date && start_date.match(DATE_RXP)
+    params.merge(endDate: end_date) if end_date && end_date.match(DATE_RXP)
+    params.merge(count: count) if count && count.match(NUM_RXP)
+    params.merge(page: page) if page && page.match(NUM_RXP)
+
+    fetch_activities(params)['data']
   end
 
   def detailed_activities(opts = {})
     activities(opts).map { |a| activity(a.activity_id) }
   end
-
-  # [:lifetime_totals, :time_span_metrics, :time_of_day_metrics, :terrains, :paces, :homepage_stats].each do |m|
-  #   eval %(
-  #     def #{m}(opts = {})
-  #       fetch_activities(opts).send(:#{m})
-  #     end
-  #   )
-  # end
 
   def method_missing(method_name, *args, &block)
     if /(.*)!$/ === method_name && self.respond_to?(method_name.to_s.chop)
@@ -60,7 +64,7 @@ class Nike::Client
     method_name.to_s.end_with?('!') && self.respond_to?(method_name.to_s.chop)
   end  
 
-# private
+private
 
 # data
 
@@ -70,16 +74,18 @@ class Nike::Client
     end
   end
 
-  def fetch_activities(opts)
+  def fetch_activities(params = {})
+    params = { count: NUM_ACTIVITIES }.merge(params)
+
     cache(:all) do
-      wrap get_authorized(ACTIVITY_URL, query: { count: NUM_ACTIVITIES })
+      wrap get_authorized(ACTIVITY_URL, params)
     end
   end
 
 # auth
 
   def get_authorized(url, params = {})
-    self.class.get(url, params.merge( query: {access_token: @token} ))
+    self.class.get(url, query: params.merge(access_token: @token))
   end
 
 # caching
