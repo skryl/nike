@@ -131,6 +131,19 @@ will have the side-effect of refreshing the cache.
     $ c.activities!
 
     $ c.activity!(12345)
+
+
+## Timeout
+
+A 15-second on all calls to Nike is set by default. If you find that this is too short, or wish to change it, use the following:
+
+Adjust timeout during client initialization
+
+    $ c = Nike::Client.new('your_email', 'your_password', timeout_seconds: #)  # => Number of seconds to set the timeout
+
+Toggle caching after client initialization
+
+    $ c.timeout = #                     # => Number of seconds to set the timeout
     
 
 ## Contributing

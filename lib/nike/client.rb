@@ -34,6 +34,7 @@ class Nike::Client
   def initialize(email, password, opts = {})
     @email, @password, @user_id = email, password, nil
     @caching, @cache = opts[:caching] || true, {}
+    @timeout_seconds = opts[:timeout_seconds] || 15
   end
 
   def activity(id)
@@ -41,7 +42,12 @@ class Nike::Client
   end
 
   def activities(opts = {})
-    fetch_user_data(opts).activities.map { |a| a.activity }
+    fetched_activities = fetch_user_data(opts).activities
+    if fetched_activities.nil? 
+      return {}
+    else
+      return fetched_activities.map { |a| a.activity }
+    end
   end
 
   def detailed_activities(opts = {})
@@ -89,19 +95,27 @@ private
   def get_authorized(url, opts = {})
     login_if_unauthenticated
     raise "Authentication failed!" unless logged_in?
-    self.class.get(personify_url(url), opts).to_hash
+
+    timeout(@timeout_seconds) do
+      self.class.get(personify_url(url), opts).to_hash
+    end
+
   end
 
   def login_if_unauthenticated
     return if logged_in?
-    response = self.class.login(@email, @password) 
+
+    response = self.class.login(@email, @password)
     @user_id = response['serviceResponse']['body']['User']['screenName']
+
   end
 
   def self.login(email, password)
-    response = post(LOGIN_URL, query: { email: email, password: password }) 
-    self.default_cookies.add_cookies(response.headers['set-cookie'])
-    response
+    timeout(@timeout_seconds) do
+      response = post(LOGIN_URL, query: { email: email, password: password })
+      self.default_cookies.add_cookies(response.headers['set-cookie'])
+      response
+    end
   end
 
   def logged_in?
