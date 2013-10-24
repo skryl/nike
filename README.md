@@ -36,6 +36,8 @@ A summary of all activities by type (type is :run by default)
 
     $ c.activities(type: :hr)           # get all heart rate activities
 
+    $ c.activities({indexStart:0, indexEnd:10}) # get first 10 runs
+
 Full activity data (Slow if you have alot of data, use c.activity to fetch a detailed data set for a single activity)
 
     $ c.detailed_activities             # get detailed data for all runs
