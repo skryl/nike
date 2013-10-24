@@ -44,7 +44,7 @@ class Nike::Client
   def activities(opts = {})
     fetched_activities = fetch_user_data(opts).activities
     if fetched_activities.nil? 
-      return {}
+      return []
     else
       return fetched_activities.map { |a| a.activity }
     end
