@@ -141,7 +141,7 @@ Adjust timeout during client initialization
 
     $ c = Nike::Client.new('your_email', 'your_password', timeout_seconds: #)  # => Number of seconds to set the timeout
 
-Toggle caching after client initialization
+Adjust timeout after client initialization
 
     $ c.timeout = #                     # => Number of seconds to set the timeout
     
