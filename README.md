@@ -36,6 +36,8 @@ A summary of all activities by type (type is :run by default)
 
     $ c.activities(type: :hr)           # get all heart rate activities
 
+    $ c.activities({indexStart:0, indexEnd:10}) # get first 10 runs
+
 Full activity data (Slow if you have alot of data, use c.activity to fetch a detailed data set for a single activity)
 
     $ c.detailed_activities             # get detailed data for all runs
@@ -129,6 +131,19 @@ will have the side-effect of refreshing the cache.
     $ c.activities!
 
     $ c.activity!(12345)
+
+
+## Timeout
+
+A 15-second on all calls to Nike is set by default. If you find that this is too short, or wish to change it, use the following:
+
+Adjust timeout during client initialization
+
+    $ c = Nike::Client.new('your_email', 'your_password', timeout_seconds: #)  # => Number of seconds to set the timeout
+
+Adjust timeout after client initialization
+
+    $ c.timeout = #                     # => Number of seconds to set the timeout
     
 
 ## Contributing
