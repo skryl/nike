@@ -9,7 +9,7 @@ class Nike::Client
   # debug_output $stdout
 
   LOGIN_URL     = 'https://secure-nikeplus.nike.com/nsl/services/user/login'
-  BASE_URL      = 'http://nikeplus.nike.com/plus'
+  BASE_URL      = 'https://secure-nikeplus.nike.com/plus'
   APP_KEY       = 'b31990e7-8583-4251-808f-9dc67b40f5d2' 
   FORMAT        = :json
 
